@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+  moduleFormat = "esm" 
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  password    String
+  role        Role     @default(MEMBER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  members           Member[]
+  reportsGenerated  Report[] @relation("UserReports")
+}
+
+model Association {
+  id             String   @id @default(uuid())
+  name           String
+  province       String
+  createdAt      DateTime @default(now())
+
+  // Relações
+  members        Member[]
+  payments       Payment[]             @relation("AssociationPayments")
+  reports        Report[]              @relation("AssociationReports")
+  transactions   FinanceTransaction[]
+}
+
+model Member {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  associationId  String
+  nif            String?
+  bi             String?
+  profession     String?
+  status         MemberStatus @default(PENDING)
+  joinedAt       DateTime @default(now())
+
+  // Relações
+  user           User         @relation(fields: [userId], references: [id])
+  association    Association  @relation(fields: [associationId], references: [id])
+  payments       Payment[]
+}
+
+model Payment {
+  id             String   @id @default(uuid())
+  memberId       String
+  amount         Float
+  method         String
+  status         PaymentStatus @default(PENDING)
+  createdAt      DateTime @default(now())
+
+  member         Member       @relation(fields: [memberId], references: [id])
+  associationId  String?
+  association    Association? @relation("AssociationPayments", fields: [associationId], references: [id])
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  type       String
+  recipient  String
+  subject    String?
+  message    String
+  status     String
+  createdAt  DateTime @default(now())
+}
+
+model Report {
+  id             String     @id @default(uuid())
+  title          String
+  type           ReportType
+  associationId  String?
+  generatedById  String
+  data           Json
+  createdAt      DateTime   @default(now())
+
+  // Relações
+  association    Association? @relation("AssociationReports", fields: [associationId], references: [id])
+  generatedBy    User         @relation("UserReports", fields: [generatedById], references: [id])
+}
+
+model FinanceCategory {
+  id            String              @id @default(uuid())
+  name          String
+  type          CategoryType
+  description   String?
+  transactions  FinanceTransaction[]
+}
+
+model FinanceTransaction {
+  id             String         @id @default(uuid())
+  categoryId     String
+  associationId  String?
+  amount         Float
+  type           TransactionType
+  method         String
+  description    String?
+  createdAt      DateTime       @default(now())
+
+  // Relações
+  category       FinanceCategory @relation(fields: [categoryId], references: [id])
+  association    Association?    @relation(fields: [associationId], references: [id])
+}
+
+enum CategoryType {
+  REVENUE
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum ReportType {
+  GENERAL
+  ASSOCIATION
+  PAYMENTS
+  CUSTOM
+}
+
+enum Role {
+  SUPERADMIN
+  ADMIN
+  TREASURER
+  SECRETARY
+  MEMBER
+}
+
+enum MemberStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+  HONORARY
+}
+
+enum PaymentStatus {
+  PAID
+  PENDING
+  FAILED
+}
