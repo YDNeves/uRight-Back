@@ -2,8 +2,8 @@ import PDFDocument from "pdfkit";
 import ExcelJS from "exceljs";
 import { prisma } from "../lib/prisma";
 import { logger } from "../config/logger";
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 export class ReportsExportService {
   // Gera PDF temporário e retorna o caminho do ficheiro
@@ -32,7 +32,7 @@ export class ReportsExportService {
 
     doc.end();
 
-    await new Promise((resolve) => writeStream.on("finish", resolve));
+    await new Promise((resolve:any) => writeStream.on("finish", resolve));
     logger.info(`PDF generated: ${filePath}`);
     return filePath;
   }
