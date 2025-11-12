@@ -1,11 +1,5 @@
 import app from './server.js';
 import  env  from './config/env.js';
-import events from "events";
-
-(globalThis as any).require = (id: string) => {
-  if (id === "events") return events;
-  throw new Error(`Dynamic require of '${id}' not supported`);
-};
 
 const start = async () => {
   try {
