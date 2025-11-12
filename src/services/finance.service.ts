@@ -1,5 +1,5 @@
-import { prisma } from "../../lib/prisma";
-import { logger } from "../../config/logger";
+import { prisma } from "../lib/prisma";
+import { logger } from "../config/logger";
 import { CategoryType, TransactionType } from "@prisma/client";
 
 export class FinanceService {

@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { FinanceService } from "./finance.service";
+import { FinanceService } from "../services/finance.service";
 
 const financeService = new FinanceService();
 
