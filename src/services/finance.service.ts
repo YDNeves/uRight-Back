@@ -1,8 +1,9 @@
 import { prisma } from "../lib/prisma";
 import { logger } from "../config/logger";
-import { CategoryType, TransactionType } from "@prisma/client";
+import { CategoryType, TransactionType, FinanceTransaction } from "@prisma/client";
 
 export class FinanceService {
+  // Criar categoria financeira
   async createCategory(name: string, type: CategoryType, description?: string) {
     const category = await prisma.financeCategory.create({
       data: { name, type, description },
@@ -11,6 +12,7 @@ export class FinanceService {
     return category;
   }
 
+  // Listar categorias com transações
   async listCategories() {
     return prisma.financeCategory.findMany({
       include: { transactions: true },
@@ -18,6 +20,7 @@ export class FinanceService {
     });
   }
 
+  // Criar transação financeira
   async createTransaction(data: {
     categoryId: string;
     amount: number;
@@ -25,12 +28,13 @@ export class FinanceService {
     method: string;
     description?: string;
     associationId?: string;
-  }) {
+  }): Promise<FinanceTransaction> {
     const transaction = await prisma.financeTransaction.create({ data });
     logger.info(`Finance transaction recorded: ${transaction.id}`);
     return transaction;
   }
 
+  // Listar todas as transações
   async listTransactions() {
     return prisma.financeTransaction.findMany({
       include: { category: true, association: true },
@@ -38,6 +42,7 @@ export class FinanceService {
     });
   }
 
+  // Obter resumo financeiro geral
   async getSummary() {
     const totalIncome = await prisma.financeTransaction.aggregate({
       where: { type: "INCOME" },
@@ -59,6 +64,16 @@ export class FinanceService {
     };
   }
 
+  // Obter transações de uma associação específica
+  async getTransactionsByAssociation(associationId: string) {
+    return prisma.financeTransaction.findMany({
+      where: { associationId },
+      include: { category: true, association: true },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  // Exportar transações para JSON ou CSV
   async exportToExternal(format: "CSV" | "JSON") {
     const transactions = await prisma.financeTransaction.findMany({
       include: { category: true, association: true },

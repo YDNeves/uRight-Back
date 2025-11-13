@@ -23,10 +23,12 @@ model User {
 }
 
 model Association {
-  id             String   @id @default(uuid())
+  id             String             @id @default(uuid())
   name           String
   province       String
-  createdAt      DateTime @default(now())
+  status         AssociationStatus  @default(PENDING)
+  type           AssociationType    @default(ASSOCIAÇÃO)
+  createdAt      DateTime           @default(now())
 
   // Relações
   members        Member[]
@@ -36,32 +38,32 @@ model Association {
 }
 
 model Member {
-  id             String   @id @default(uuid())
-  userId         String   @unique
+  id             String        @id @default(uuid())
+  userId         String        @unique
   associationId  String
   nif            String?
   bi             String?
   profession     String?
-  status         MemberStatus @default(PENDING)
-  joinedAt       DateTime @default(now())
+  status         MemberStatus  @default(PENDING)
+  joinedAt       DateTime      @default(now())
 
   // Relações
-  user           User         @relation(fields: [userId], references: [id])
-  association    Association  @relation(fields: [associationId], references: [id])
+  user           User          @relation(fields: [userId], references: [id])
+  association    Association   @relation(fields: [associationId], references: [id])
   payments       Payment[]
 }
 
 model Payment {
-  id             String   @id @default(uuid())
+  id             String           @id @default(uuid())
   memberId       String
   amount         Float
   method         String
-  status         PaymentStatus @default(PENDING)
-  createdAt      DateTime @default(now())
+  status         PaymentStatus    @default(PENDING)
+  createdAt      DateTime         @default(now())
 
-  member         Member       @relation(fields: [memberId], references: [id])
+  member         Member           @relation(fields: [memberId], references: [id])
   associationId  String?
-  association    Association? @relation("AssociationPayments", fields: [associationId], references: [id])
+  association    Association?     @relation("AssociationPayments", fields: [associationId], references: [id])
 }
 
 model Notification {
@@ -75,17 +77,17 @@ model Notification {
 }
 
 model Report {
-  id             String     @id @default(uuid())
+  id             String        @id @default(uuid())
   title          String
   type           ReportType
   associationId  String?
   generatedById  String
   data           Json
-  createdAt      DateTime   @default(now())
+  createdAt      DateTime      @default(now())
 
   // Relações
-  association    Association? @relation("AssociationReports", fields: [associationId], references: [id])
-  generatedBy    User         @relation("UserReports", fields: [generatedById], references: [id])
+  association    Association?  @relation("AssociationReports", fields: [associationId], references: [id])
+  generatedBy    User          @relation("UserReports", fields: [generatedById], references: [id])
 }
 
 model FinanceCategory {
@@ -97,18 +99,18 @@ model FinanceCategory {
 }
 
 model FinanceTransaction {
-  id             String         @id @default(uuid())
+  id             String             @id @default(uuid())
   categoryId     String
   associationId  String?
   amount         Float
   type           TransactionType
   method         String
   description    String?
-  createdAt      DateTime       @default(now())
+  createdAt      DateTime           @default(now())
 
   // Relações
-  category       FinanceCategory @relation(fields: [categoryId], references: [id])
-  association    Association?    @relation(fields: [associationId], references: [id])
+  category       FinanceCategory    @relation(fields: [categoryId], references: [id])
+  association    Association?       @relation(fields: [associationId], references: [id])
 }
 
 enum CategoryType {
@@ -142,6 +144,19 @@ enum MemberStatus {
   PENDING
   SUSPENDED
   HONORARY
+}
+
+enum AssociationStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum AssociationType {
+  COOPERATIVA
+  ASSOCIAÇÃO
+  SINDICATO
 }
 
 enum PaymentStatus {

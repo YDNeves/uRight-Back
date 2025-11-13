@@ -1,10 +1,11 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { ReportsExportService } from "../services/reports.export.service";
 import fs from "fs";
 import { ReportsService } from "../services/reports.service";
+import { ReportsExportService } from "../services/reports.export.service";
 
 const reportsService = new ReportsService();
 const reportsExportService = new ReportsExportService();
+
 export class ReportsController {
   async generateGeneralReport(request: FastifyRequest, reply: FastifyReply) {
     try {
@@ -27,7 +28,7 @@ export class ReportsController {
     }
   }
 
-  async listReports(request: FastifyRequest, reply: FastifyReply) {
+  async listReports(_: FastifyRequest, reply: FastifyReply) {
     try {
       const reports = await reportsService.listReports();
       reply.send(reports);
@@ -60,8 +61,8 @@ export class ReportsController {
     try {
       const { id } = request.params as { id: string };
       const filePath = await reportsExportService.exportToPDF(id);
-
       const stream = fs.createReadStream(filePath);
+
       reply.header("Content-Type", "application/pdf");
       reply.header("Content-Disposition", `attachment; filename=report-${id}.pdf`);
       reply.send(stream);
@@ -74,9 +75,12 @@ export class ReportsController {
     try {
       const { id } = request.params as { id: string };
       const filePath = await reportsExportService.exportToExcel(id);
-
       const stream = fs.createReadStream(filePath);
-      reply.header("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+      reply.header(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      );
       reply.header("Content-Disposition", `attachment; filename=report-${id}.xlsx`);
       reply.send(stream);
     } catch (error: any) {

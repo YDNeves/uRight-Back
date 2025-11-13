@@ -37,11 +37,11 @@ export class NotificationService {
         },
       });
 
-      logger.info(`📧 Email enviado para ${to}`);
+      logger.info(` Email enviado para ${to}`);
       return log;
-    } catch (error:any) {
+    } catch (error: any) {
       logger.error("Erro ao enviar e-mail:", error);
-      await prisma.notification.create({
+      return prisma.notification.create({
         data: {
           type: "EMAIL",
           recipient: to,
@@ -50,14 +50,12 @@ export class NotificationService {
           status: "FAILED",
         },
       });
-      throw new Error("Falha ao enviar o e-mail.");
     }
   }
 
   async sendSMSNotification(phone: string, message: string) {
     try {
-      // Aqui futuramente integras com um provedor como Twilio ou Termii
-      logger.info(`📱 SMS simulado enviado para ${phone}`);
+      logger.info(` SMS simulado enviado para ${phone}`);
 
       return prisma.notification.create({
         data: {
@@ -67,7 +65,7 @@ export class NotificationService {
           status: "SENT",
         },
       });
-    } catch (error:any) {
+    } catch (error: any) {
       logger.error("Erro ao enviar SMS:", error);
       throw error;
     }
@@ -75,8 +73,7 @@ export class NotificationService {
 
   async sendWhatsAppNotification(phone: string, message: string) {
     try {
-      // Placeholder: integração futura com WhatsApp Business API
-      logger.info(`💬 WhatsApp simulado para ${phone}`);
+      logger.info(` WhatsApp simulado para ${phone}`);
 
       return prisma.notification.create({
         data: {
@@ -86,14 +83,15 @@ export class NotificationService {
           status: "SENT",
         },
       });
-    } catch (error:any) {
+    } catch (error: any) {
       logger.error("Erro ao enviar WhatsApp:", error);
       throw error;
     }
   }
 
-  async getNotifications() {
+  async getNotifications(recipient?: string) {
     return prisma.notification.findMany({
+      where: recipient ? { recipient } : {},
       orderBy: { createdAt: "desc" },
     });
   }
@@ -102,5 +100,16 @@ export class NotificationService {
     const notif = await prisma.notification.findUnique({ where: { id } });
     if (!notif) throw new Error("Notificação não encontrada.");
     return notif;
+  }
+
+  async markAsRead(id: string) {
+    return prisma.notification.update({
+      where: { id },
+      data: { status: "READ" },
+    });
+  }
+
+  async deleteNotification(id: string) {
+    return prisma.notification.delete({ where: { id } });
   }
 }

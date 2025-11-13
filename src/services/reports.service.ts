@@ -7,7 +7,7 @@ export class ReportsService {
     const totalMembers = await prisma.member.count();
     const activeMembers = await prisma.member.count({ where: { status: "ACTIVE" } });
     const totalPayments = await prisma.payment.count();
-    const totalPaid = await prisma.payment.aggregate({ _sum: { amount: true } });
+    const totalPaid = (await prisma.payment.aggregate({ _sum: { amount: true } }))._sum.amount || 0;
     const totalAssociations = await prisma.association.count();
 
     const data = {
@@ -15,7 +15,7 @@ export class ReportsService {
       activeMembers,
       totalAssociations,
       totalPayments,
-      totalPaid: totalPaid._sum.amount || 0,
+      totalPaid,
       generatedAt: new Date(),
     };
 
@@ -63,6 +63,7 @@ export class ReportsService {
       },
     });
 
+    logger.info(`Association report generated for ${association.name}`);
     return report;
   }
 

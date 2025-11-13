@@ -1,4 +1,14 @@
-import { PrismaClient, Role, MemberStatus, PaymentStatus } from '@prisma/client'
+import {
+  PrismaClient,
+  Role,
+  MemberStatus,
+  PaymentStatus,
+  AssociationStatus,
+  AssociationType,
+  CategoryType,
+  TransactionType,
+  ReportType,
+} from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
@@ -6,7 +16,7 @@ const prisma = new PrismaClient()
 async function main() {
   console.log(' Iniciando seed da base de dados AssoGest...')
 
-  // Criar utilizadores
+  //  Criar utilizadores
   const passwordHash = await bcrypt.hash('123456', 10)
 
   const admin = await prisma.user.upsert({
@@ -16,7 +26,7 @@ async function main() {
       name: 'Administrador Geral',
       email: 'admin@assogest.com',
       password: passwordHash,
-      role: Role.ADMIN,
+      role: Role.SUPERADMIN,
     },
   })
 
@@ -55,11 +65,13 @@ async function main() {
 
   console.log(' Utilizadores criados com sucesso.')
 
-  // 2️⃣ Criar associações
+  // Criar associações
   const assoc1 = await prisma.association.create({
     data: {
       name: 'Associação dos Engenheiros de Angola',
       province: 'Luanda',
+      status: AssociationStatus.ACTIVE,
+      type: AssociationType.ASSOCIAÇÃO,
     },
   })
 
@@ -67,12 +79,14 @@ async function main() {
     data: {
       name: 'Cooperativa dos Técnicos de Informática',
       province: 'Benguela',
+      status: AssociationStatus.PENDING,
+      type: AssociationType.COOPERATIVA,
     },
   })
 
   console.log(' Associações criadas.')
 
-  // 3️⃣ Criar membros
+  // Criar membros
   const member1 = await prisma.member.create({
     data: {
       userId: membro.id,
@@ -97,7 +111,50 @@ async function main() {
 
   console.log(' Membros adicionados.')
 
-  // 4️⃣ Criar pagamentos
+  // Criar categorias financeiras
+  const receitaCat = await prisma.financeCategory.create({
+    data: {
+      name: 'Quotas Mensais',
+      type: CategoryType.REVENUE,
+      description: 'Contribuições regulares dos associados.',
+    },
+  })
+
+  const despesaCat = await prisma.financeCategory.create({
+    data: {
+      name: 'Despesas Operacionais',
+      type: CategoryType.EXPENSE,
+      description: 'Gastos administrativos e de eventos.',
+    },
+  })
+
+  console.log(' Categorias financeiras criadas.')
+
+  // Criar transações financeiras
+  await prisma.financeTransaction.createMany({
+    data: [
+      {
+        categoryId: receitaCat.id,
+        associationId: assoc1.id,
+        amount: 45000,
+        type: TransactionType.INCOME,
+        method: 'Transferência Bancária',
+        description: 'Receita das quotas de Outubro',
+      },
+      {
+        categoryId: despesaCat.id,
+        associationId: assoc1.id,
+        amount: 12000,
+        type: TransactionType.EXPENSE,
+        method: 'Dinheiro',
+        description: 'Compra de material de escritório',
+      },
+    ],
+  })
+
+  console.log(' Transações financeiras inseridas.')
+
+  // Criar pagamentos
   await prisma.payment.createMany({
     data: [
       {
@@ -105,17 +162,58 @@ async function main() {
         amount: 5000,
         method: 'Multicaixa Express',
         status: PaymentStatus.PAID,
+        associationId: assoc1.id,
       },
       {
         memberId: member2.id,
         amount: 7500,
         method: 'Transferência Bancária',
         status: PaymentStatus.PENDING,
+        associationId: assoc1.id,
       },
     ],
   })
 
   console.log(' Pagamentos inseridos.')
+
+  // Criar relatórios
+  await prisma.report.create({
+    data: {
+      title: 'Relatório Financeiro - Outubro',
+      type: ReportType.ASSOCIATION,
+      associationId: assoc1.id,
+      generatedById: admin.id,
+      data: {
+        receitas: 45000,
+        despesas: 12000,
+        saldo: 33000,
+      },
+    },
+  })
+
+  console.log(' Relatório criado.')
+
+  // Criar notificações
+  await prisma.notification.createMany({
+    data: [
+      {
+        type: 'INFO',
+        recipient: membro.email,
+        subject: 'Pagamento Recebido',
+        message: 'O seu pagamento foi confirmado com sucesso.',
+        status: 'ENVIADO',
+      },
+      {
+        type: 'ALERTA',
+        recipient: tesoureiro.email,
+        subject: 'Novo Relatório Disponível',
+        message: 'O relatório financeiro de Outubro foi gerado.',
+        status: 'ENVIADO',
+      },
+    ],
+  })
+
+  console.log(' Notificações criadas.')
   console.log(' Seed concluído com sucesso!')
 }
 

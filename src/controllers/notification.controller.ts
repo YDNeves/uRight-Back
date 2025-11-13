@@ -13,7 +13,7 @@ export class NotificationController {
       };
       const result = await notificationService.sendEmailNotification(to, subject, message);
       return reply.status(200).send(result);
-    } catch (error:any) {
+    } catch (error: any) {
       return reply.status(400).send({ error: error.message });
     }
   }
@@ -23,7 +23,7 @@ export class NotificationController {
       const { phone, message } = request.body as { phone: string; message: string };
       const result = await notificationService.sendSMSNotification(phone, message);
       return reply.status(200).send(result);
-    } catch (error:any) {
+    } catch (error: any) {
       return reply.status(400).send({ error: error.message });
     }
   }
@@ -33,23 +33,45 @@ export class NotificationController {
       const { phone, message } = request.body as { phone: string; message: string };
       const result = await notificationService.sendWhatsAppNotification(phone, message);
       return reply.status(200).send(result);
-    } catch (error:any) {
+    } catch (error: any) {
       return reply.status(400).send({ error: error.message });
     }
   }
 
-  async list(request: FastifyRequest, reply: FastifyReply) {
-    const notifications = await notificationService.getNotifications();
+  async list(request: FastifyRequest<{ Querystring: { recipient?: string } }>, reply: FastifyReply) {
+    const { recipient } = request.query;
+    const notifications = await notificationService.getNotifications(recipient);
     return reply.send(notifications);
   }
+  
 
   async getById(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string };
       const notif = await notificationService.getNotificationById(id);
       return reply.send(notif);
-    } catch (error:any) {
+    } catch (error: any) {
       return reply.status(404).send({ error: error.message });
+    }
+  }
+
+  async markAsRead(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { id } = request.params as { id: string };
+      const notif = await notificationService.markAsRead(id);
+      return reply.send(notif);
+    } catch (error: any) {
+      return reply.status(404).send({ error: error.message });
+    }
+  }
+
+  async delete(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { id } = request.params as { id: string };
+      await notificationService.deleteNotification(id);
+      return reply.send({ message: "Notificação excluída com sucesso" });
+    } catch (error: any) {
+      return reply.status(500).send({ error: error.message });
     }
   }
 }
