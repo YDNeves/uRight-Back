@@ -9,7 +9,9 @@
     "start": "tsx src/index.ts",
     "seed": "node --loader ts-node/esm src/prisma/seeds/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "reset": "prisma migrate reset --force",
+    "migrate": "prisma migrate dev --name add-a4"
   },
   "keywords": [],
   "author": "",
