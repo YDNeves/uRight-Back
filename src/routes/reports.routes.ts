@@ -8,10 +8,10 @@ export async function reportsRoutes(app: FastifyInstance) {
   app.register(async (reports) => {
     reports.addHook("onRequest", authenticate);
 
-    reports.post("/reports/general", reportsController.generateGeneralReport);
-    reports.post("/reports/association/:associationId", reportsController.generateAssociationReport);
-    reports.get("/reports", reportsController.listReports);
-    reports.get("/reports/:id", reportsController.getReportById);
-    reports.delete("/reports/:id", reportsController.deleteReport);
+    reports.post("/general", reportsController.generateGeneralReport);
+    reports.post("/association/:associationId", reportsController.generateAssociationReport);
+    reports.get("", reportsController.listReports);
+    reports.get("/:id", reportsController.getReportById);
+    reports.delete("/:id", reportsController.deleteReport);
   });
 }

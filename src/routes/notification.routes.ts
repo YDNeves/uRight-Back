@@ -13,5 +13,5 @@ export async function notificationRoutes(app: FastifyInstance) {
     notif.post("/whatsapp", controller.sendWhatsApp.bind(controller));
     notif.get("/", controller.list.bind(controller));
     notif.get("/:id", controller.getById.bind(controller));
-  }, { prefix: "/notifications" });
+  });
 }

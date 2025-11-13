@@ -13,5 +13,5 @@ export async function paymentRoutes(app: FastifyInstance) {
     payment.get("/:id", controller.getById.bind(controller));
     payment.put("/:id/status", controller.updateStatus.bind(controller));
     payment.delete("/:id", controller.remove.bind(controller));
-  }, { prefix: "/payments" });
+  });
 }

@@ -8,13 +8,13 @@ export async function financeRoutes(app: FastifyInstance) {
   app.register(async (finance) => {
     finance.addHook("onRequest", authenticate);
 
-    finance.post("/finance/categories", financeController.createCategory);
-    finance.get("/finance/categories", financeController.listCategories);
+    finance.post("/categories", financeController.createCategory);
+    finance.get("/categories", financeController.listCategories);
 
-    finance.post("/finance/transactions", financeController.createTransaction);
-    finance.get("/finance/transactions", financeController.listTransactions);
+    finance.post("/transactions", financeController.createTransaction);
+    finance.get("/transactions", financeController.listTransactions);
 
-    finance.get("/finance/summary", financeController.getSummary);
-    finance.get("/finance/export", financeController.exportTransactions);
+    finance.get("/summary", financeController.getSummary);
+    finance.get("/export", financeController.exportTransactions);
   });
 }

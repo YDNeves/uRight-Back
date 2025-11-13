@@ -13,5 +13,5 @@ export async function associationRoutes(app: FastifyInstance) {
     routes.get("/:id", controller.getById);
     routes.put("/:id", controller.update);
     routes.delete("/:id", controller.remove);
-  }, { prefix: "/associations" });
+  });
 }
