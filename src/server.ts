@@ -13,10 +13,14 @@ import { registerRoutes } from './routes/index';
 const app = Fastify({
   logger:true,
   trustProxy: env.NODE_ENV === 'production'
+
 });
 
 // --- Plugins ---
-await app.register(cors, { origin: env.CORS_ORIGIN });
+await app.register(cors, { 
+  origin: env.CORS_ORIGIN,
+  credentials: true
+});
 await app.register(helmet);
 await app.register(rateLimit, { max: 100, timeWindow: '1 minute' });
 await app.register(jwtPlugin, { secret: env.JWT_SECRET });
