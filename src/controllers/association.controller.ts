@@ -33,10 +33,32 @@ export class AssociationController {
     }
   }
 
+  /**
+   * Trata a atualização apenas do campo 'imageUrl'.
+   * O body deve conter { imageUrl: string }.
+   */
+  async updateImageUrl(request: FastifyRequest, reply: FastifyReply) {
+    try {
+      const { id } = request.params as { id: string };
+      // Espera que o body contenha o URL da imagem (resultado do middleware)
+      const { imageUrl } = request.body as { imageUrl: string }; 
+
+      if (!imageUrl) {
+        return reply.status(400).send({ error: "O campo 'imageUrl' é obrigatório." });
+      }
+
+      const updatedAssociation = await service.updateImageUrl(id, imageUrl);
+      reply.send(updatedAssociation);
+    } catch (error: any) {
+      reply.status(400).send({ error: error.message });
+    }
+  }
+
   async update(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string };
-      const data = request.body as { name?: string; province?: string };
+      // Ajustado para incluir imageUrl como opcional no updateAssociation
+      const data = request.body as { name?: string; province?: string; imageUrl?: string }; 
       const updated = await service.updateAssociation(id, data);
       reply.send(updated);
     } catch (error: any) {
