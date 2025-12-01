@@ -16,7 +16,7 @@ const prisma = new PrismaClient()
 async function main() {
   console.log(' Iniciando seed da base de dados AssoGest...')
 
-  //  Criar utilizadores
+  //  Criar utilizadores
   const passwordHash = await bcrypt.hash('123456', 10)
 
   const admin = await prisma.user.upsert({
@@ -27,6 +27,8 @@ async function main() {
       email: 'admin@assogest.com',
       password: passwordHash,
       role: Role.SUPERADMIN,
+      // Adicionado imageUrl para o Administrador
+      imageUrl: 'https://placehold.co/150x150/1e293b/FFFFFF?text=ADMIN',
     },
   })
 
@@ -38,6 +40,8 @@ async function main() {
       email: 'tesoureiro@assogest.com',
       password: passwordHash,
       role: Role.TREASURER,
+      // Adicionado imageUrl para o Tesoureiro
+      imageUrl: 'https://placehold.co/150x150/065f46/FFFFFF?text=TES',
     },
   })
 
@@ -49,6 +53,8 @@ async function main() {
       email: 'secretario@assogest.com',
       password: passwordHash,
       role: Role.SECRETARY,
+      // Adicionado imageUrl para a Secretária
+      imageUrl: 'https://placehold.co/150x150/9333ea/FFFFFF?text=SEC',
     },
   })
 
@@ -60,6 +66,8 @@ async function main() {
       email: 'membro@assogest.com',
       password: passwordHash,
       role: Role.MEMBER,
+      // Adicionado imageUrl para o Membro
+      imageUrl: 'https://placehold.co/150x150/ca8a04/FFFFFF?text=MEM',
     },
   })
 
@@ -72,6 +80,8 @@ async function main() {
       province: 'Luanda',
       status: AssociationStatus.ACTIVE,
       type: AssociationType.ASSOCIAÇÃO,
+      // Adicionado imageUrl para a Associação 1
+      imageUrl: 'https://placehold.co/300x200/52525B/FFFFFF?text=A.E.A',
     },
   })
 
@@ -81,6 +91,8 @@ async function main() {
       province: 'Benguela',
       status: AssociationStatus.PENDING,
       type: AssociationType.COOPERATIVA,
+      // Adicionado imageUrl para a Associação 2
+      imageUrl: 'https://placehold.co/300x200/155e75/FFFFFF?text=C.T.I',
     },
   })
 
