@@ -14,7 +14,6 @@ model User {
   email       String   @unique
   password    String
   role        Role     @default(MEMBER)
-  imageUrl    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -29,7 +28,7 @@ model Association {
   province       String
   status         AssociationStatus  @default(PENDING)
   type           AssociationType    @default(ASSOCIAÇÃO)
-  imageUrl    String
+  imageUrl       String
   createdAt      DateTime           @default(now())
 
   // Relações
@@ -43,6 +42,7 @@ model Member {
   id             String        @id @default(uuid())
   userId         String        @unique
   associationId  String
+  imageUrl       String?   
   nif            String?
   bi             String?
   profession     String?
