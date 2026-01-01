@@ -30,6 +30,27 @@ export class AssociationService {
     }
   }
 
+  async getRandomAssociations(limit = 10) {
+    try {
+      return await prisma.association.findMany({
+        take: limit,
+        orderBy: {
+          createdAt: "desc",
+        },
+
+        select: {
+          id: true,
+          name: true,
+          province: true,
+          imageUrl: true,
+        },
+      })
+    } catch (error: any) {
+      logger.error("Erro ao buscar associações aleatórias", error)
+      throw new Error("Falha ao buscar associações")
+    }
+  }
+
   async getAssociationById(id: string) {
     try {
       const association = await prisma.association.findUnique({

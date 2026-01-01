@@ -42,6 +42,7 @@ export async function associationRoutes(app: FastifyInstance) {
     );
 
     // --- Rotas Existentes ---
+    routes.get("/random", controller.getRandom)
     routes.post("/", controller.create);
     routes.get("/", controller.listAll);          
     routes.get("/:id", controller.getById);

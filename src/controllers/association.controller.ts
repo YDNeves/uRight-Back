@@ -23,6 +23,14 @@ export class AssociationController {
     }
   }
 
+  async getRandom(request: FastifyRequest, reply: FastifyReply) {
+    const limit = Number((request.query as any).limit) || 10
+  
+    const associations = await service.getRandomAssociations(limit)
+  
+    return reply.send(associations)
+  }
+
   async getById(request: FastifyRequest, reply: FastifyReply) {
     try {
       const { id } = request.params as { id: string };
