@@ -2,17 +2,18 @@ import { prisma } from "../lib/prisma";
 import { logger } from "../config/logger";
 
 export class AssociationService {
-  async createAssociation(data: { name: string; province: string; imageUrl?: string }) { // Adicionado imageUrl opcional
+  // Criar associação com a URL da imagem já processada pelo middleware
+  async createAssociation(data: { name: string; province: string; imageUrl?: string }) {
     try {
       const association = await prisma.association.create({
         data: {
           name: data.name,
           province: data.province,
-          imageUrl: data.imageUrl || "", // Provide a default empty string if undefined
+          imageUrl: data.imageUrl || "", // default string vazia se não houver imagem
         },
       });
       return association;
-    } catch (error:any) {
+    } catch (error: any) {
       logger.error("Erro ao criar associação", error);
       throw new Error("Falha ao criar associação");
     }
@@ -21,10 +22,9 @@ export class AssociationService {
   async getAllAssociations() {
     try {
       return await prisma.association.findMany({
-        // Adicionando imageUrl ao select
         select: { id: true, name: true, province: true, imageUrl: true, members: true, payments: true },
       });
-    } catch (error:any) {
+    } catch (error: any) {
       logger.error("Erro ao listar associações", error);
       throw new Error("Falha ao listar associações");
     }
@@ -34,20 +34,12 @@ export class AssociationService {
     try {
       return await prisma.association.findMany({
         take: limit,
-        orderBy: {
-          createdAt: "desc",
-        },
-
-        select: {
-          id: true,
-          name: true,
-          province: true,
-          imageUrl: true,
-        },
-      })
+        orderBy: { createdAt: "desc" },
+        select: { id: true, name: true, province: true, imageUrl: true },
+      });
     } catch (error: any) {
-      logger.error("Erro ao buscar associações aleatórias", error)
-      throw new Error("Falha ao buscar associações")
+      logger.error("Erro ao buscar associações aleatórias", error);
+      throw new Error("Falha ao buscar associações");
     }
   }
 
@@ -55,44 +47,39 @@ export class AssociationService {
     try {
       const association = await prisma.association.findUnique({
         where: { id },
-        // Incluindo membros e pagamentos, o campo imageUrl será incluído
         include: { members: true, payments: true },
       });
       if (!association) throw new Error("Associação não encontrada");
       return association;
-    } catch (error:any) {
+    } catch (error: any) {
       logger.error("Erro ao buscar associação", error);
       throw error;
     }
   }
 
-  /**
-   * Atualiza o campo 'imageUrl' da associação no banco de dados.
-   * @param id ID da associação.
-   * @param imageUrl O URL retornado pelo middleware de upload de imagem.
-   */
+  // Atualiza apenas o campo imageUrl
   async updateImageUrl(id: string, imageUrl: string) {
     try {
-      const association = await prisma.association.update({
+      const updated = await prisma.association.update({
         where: { id },
         data: { imageUrl },
-        select: { id: true, imageUrl: true, name: true } // Retorno mínimo de confirmação
+        select: { id: true, name: true, imageUrl: true },
       });
-      logger.info(`URL de imagem da associação atualizada: ${association.name}`);
-      return association;
+      logger.info(`Imagem da associação ${updated.name} atualizada`);
+      return updated;
     } catch (error: any) {
-      logger.error(`Erro ao atualizar imageUrl da associação ${id}`, error);
-      throw new Error("Falha ao atualizar a imagem da associação.");
+      logger.error(`Erro ao atualizar imagem da associação ${id}`, error);
+      throw new Error("Falha ao atualizar imagem");
     }
   }
 
-  async updateAssociation(id: string, data: { name?: string; province?: string; imageUrl?: string }) { // Adicionado imageUrl opcional
+  async updateAssociation(id: string, data: { name?: string; province?: string; imageUrl?: string }) {
     try {
       return await prisma.association.update({
         where: { id },
         data,
       });
-    } catch (error:any) {
+    } catch (error: any) {
       logger.error("Erro ao atualizar associação", error);
       throw new Error("Falha ao atualizar associação");
     }
@@ -102,7 +89,7 @@ export class AssociationService {
     try {
       await prisma.association.delete({ where: { id } });
       return { message: "Associação removida com sucesso" };
-    } catch (error:any) {
+    } catch (error: any) {
       logger.error("Erro ao remover associação", error);
       throw new Error("Falha ao remover associação");
     }
